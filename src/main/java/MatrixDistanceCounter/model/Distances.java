@@ -14,23 +14,31 @@ public class Distances {
     }
 
     public Double findDistance(String originCity, String originRegion, String destCity, String destRegion) {
-        for (Distance distance: distances) {
-
+        for (Distance distance : distances) {
+//            System.out.println("enter");
             if (distance.getRegionNameOrigin().equalsIgnoreCase(originRegion) &&
                     distance.getCityNameOrigin().equalsIgnoreCase(originCity)) {
                 if (distance.getRegionNameDestination().equalsIgnoreCase(destRegion) &&
                         distance.getCityNameDestination().equalsIgnoreCase(destCity)) {
-                       return distance.getDistance();
+                    return distance.getDistance();
                 }
             }
 
-            if (distance.getRegionNameDestination().equalsIgnoreCase(destRegion) &&
+            if (distance.getRegionNameOrigin().equalsIgnoreCase(destRegion) &&
+                    distance.getCityNameOrigin().equalsIgnoreCase(destCity)) {
+                if (distance.getRegionNameDestination().equalsIgnoreCase(originRegion) &&
+                        distance.getCityNameDestination().equalsIgnoreCase(originCity)) {
+                    return distance.getDistance();
+                }
+            }
+
+        /*    if (distance.getRegionNameDestination().equalsIgnoreCase(destRegion) &&
                     distance.getCityNameDestination().equalsIgnoreCase(destCity)) {
                 if (distance.getRegionNameOrigin().equalsIgnoreCase(originRegion) &&
                         distance.getCityNameOrigin().equalsIgnoreCase(originCity)) {
                     return distance.getDistance();
                 }
-            }
+            }*/
 
         }
 

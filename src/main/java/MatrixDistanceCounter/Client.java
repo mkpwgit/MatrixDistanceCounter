@@ -2,7 +2,6 @@ package MatrixDistanceCounter;
 
 import MatrixDistanceCounter.fileprocessing.FileProcessing;
 import MatrixDistanceCounter.model.City;
-import MatrixDistanceCounter.model.Distance;
 import MatrixDistanceCounter.model.Distances;
 import MatrixDistanceCounter.model.Region;
 
@@ -17,7 +16,8 @@ public class Client {
     public static final String CITIES_PATH = "powiaty.txt";
     public static final String REGIONS_PATH = "wojewodstwa.txt";
     public static final String DISTANCES_PATH = "result1-10.txt";
-    public static final String RESULT_PATH = "result-distance.txt";
+    public static final String EXTERNAL_RESULT_PATH = "result-distance-external.txt";
+    public static final String INNER_RESULT_PATH = "result-distance-inner.txt";
 
 
     public static void main(String[] args) throws IOException {
@@ -33,39 +33,73 @@ public class Client {
         /*for (Region region : regions)
             System.out.println(region);*/
 
-        writeResult(regions, distances);
+//        writeResultInner(regions, distances);
+        writeResultExternal(regions, distances);
 
     }
 
-    public static void writeResult(List<Region> regions, Distances distances) throws IOException {
-        FileProcessing writeResultProcessing = new FileProcessing(RESULT_PATH, false);
+    public static void writeResultExternal(List<Region> regions, Distances distances) throws IOException {
+        FileProcessing writeResultProcessing = new FileProcessing(EXTERNAL_RESULT_PATH, false);
         for (int i = 0; i < regions.size(); i++) {
-            System.out.println(i+"!!!!!!!!!!!!!!!!!!!!!");
             for (int j = i + 1; j < regions.size(); j++) {
                 Region originRegion = regions.get(i);
                 Region destRegion = regions.get(j);
                 for (int y = 0; y < 11; y++) {
-                    Double sumDistance = 0d;
+                    Double resultSumDistance = 0d;
                     for (int k = 0; k < originRegion.getCities().size(); k++) {
+                        Double sumDistance = 0d;
+                        City originCity = originRegion.getCities().get(k);
+                        Double gdp = (originCity.getGDPs().get(y)
+                                / originRegion.getGDPs().get(y));
                         for (int l = 0; l < destRegion.getCities().size(); l++) {
-                            City originCity = originRegion.getCities().get(k);
+
                             City destCity = destRegion.getCities().get(l);
 
                             Double distance = distances.findDistance(originCity.getCity(), originRegion.getName(),
                                     destCity.getCity(), destRegion.getName());
-                            System.out.println(originCity.getCity()+ " "+destCity.getCity()+"Distance: "+distance);
 
-                            sumDistance += (originCity.getGDPs().get(y)
-                                    / originRegion.getGDPs().get(y)) *
-                                    (destCity.getGDPs().get(y) /
-                                            destRegion.getGDPs().get(y)) * distance;
-                            System.out.println("Total sum: "+sumDistance );
+                            sumDistance += (destCity.getGDPs().get(y) /
+                                    destRegion.getGDPs().get(y)) / distance;
 
                         }
+                        sumDistance *= gdp;
+                        resultSumDistance += sumDistance;
                     }
-                    System.out.println(originRegion.getName()+" "+destRegion.getName()+ "Result sum!!!!!! "+sumDistance);
-                    writeResultProcessing.writeResultLine(originRegion.getName(), destRegion.getName(), sumDistance);
+                    writeResultProcessing.writeResultLine(originRegion.getName(), destRegion.getName(), resultSumDistance);
                 }
+            }
+        }
+        writeResultProcessing.closeResource();
+    }
+
+    public static void writeResultInner(List<Region> regions, Distances distances) throws IOException {
+        FileProcessing writeResultProcessing = new FileProcessing(INNER_RESULT_PATH, false);
+        for (Region region : regions) {
+            for (int y = 0; y < 11; y++) {
+                Double resultSumDistance = 0d;
+                for (int k = 0; k < region.getCities().size(); k++) {
+                    Double sumDistance = 0d;
+                    City originCity = region.getCities().get(k);
+                    Double gdp = originCity.getGDPs().get(y) / region.getGDPs().get(y);
+                    for (int l = 0; l < region.getCities().size(); l++) {
+
+                        City destCity = region.getCities().get(l);
+                        Double distance;
+                        if (k != l) {
+                            distance = distances.findDistance(originCity.getCity(), region.getName(),
+                                    destCity.getCity(), region.getName());
+
+                        } else {
+                            distance = 10.84701;
+                        }
+
+                        sumDistance += (destCity.getGDPs().get(y) /
+                                region.getGDPs().get(y)) * distance;
+                    }
+                    sumDistance *= gdp;
+                    resultSumDistance += sumDistance;
+                }
+                writeResultProcessing.writeResultLine2(region.getName(), resultSumDistance);
             }
         }
         writeResultProcessing.closeResource();

@@ -97,6 +97,12 @@ public class FileProcessing {
         bw.write(new String(resultLine));
     }
 
+    public void writeResultLine2(String region, Double totalDistance) throws IOException {
+        StringBuilder resultLine = new StringBuilder();
+        resultLine.append(region).append(",").append(totalDistance).append('\n');
+        bw.write(new String(resultLine));
+    }
+
     public void closeResource() throws IOException {
         bw.close();
     }
