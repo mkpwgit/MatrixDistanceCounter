@@ -15,7 +15,7 @@ public class Client {
 
     public static final String CITIES_PATH = "powiaty.txt";
     public static final String REGIONS_PATH = "wojewodstwa.txt";
-    public static final String DISTANCES_PATH = "result1-10.txt";
+    public static final String DISTANCES_PATH = "result1-30.txt";
     public static final String EXTERNAL_RESULT_PATH = "result-distance-external.txt";
     public static final String INNER_RESULT_PATH = "result-distance-inner.txt";
 
@@ -33,16 +33,17 @@ public class Client {
         /*for (Region region : regions)
             System.out.println(region);*/
 
-//        writeResultInner(regions, distances);
         writeResultExternal(regions, distances);
+        writeResultInner(regions, distances);
+
 
     }
 
     public static void writeResultExternal(List<Region> regions, Distances distances) throws IOException {
         FileProcessing writeResultProcessing = new FileProcessing(EXTERNAL_RESULT_PATH, false);
         for (int i = 0; i < regions.size(); i++) {
+            Region originRegion = regions.get(i);
             for (int j = i + 1; j < regions.size(); j++) {
-                Region originRegion = regions.get(i);
                 Region destRegion = regions.get(j);
                 for (int y = 0; y < 11; y++) {
                     Double resultSumDistance = 0d;
@@ -57,10 +58,8 @@ public class Client {
 
                             Double distance = distances.findDistance(originCity.getCity(), originRegion.getName(),
                                     destCity.getCity(), destRegion.getName());
-
                             sumDistance += (destCity.getGDPs().get(y) /
                                     destRegion.getGDPs().get(y)) / distance;
-
                         }
                         sumDistance *= gdp;
                         resultSumDistance += sumDistance;
@@ -68,6 +67,7 @@ public class Client {
                     writeResultProcessing.writeResultLine(originRegion.getName(), destRegion.getName(), resultSumDistance);
                 }
             }
+            System.out.println(i);
         }
         writeResultProcessing.closeResource();
     }
